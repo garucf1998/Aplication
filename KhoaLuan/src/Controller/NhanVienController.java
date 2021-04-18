@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,13 +20,19 @@ import com.google.gson.JsonParser;
 
 import enity.NhanVien;
 import enity.Role;
+import enity.TaiKhoan;
 
 public class NhanVienController {
 	
 	static String GET_ALL_NHAN_VIEN="http://localhost:5001/nhanvien/getall";
 	static String PUT_NHAN_VIEN="http://localhost:5001/nhanvien/update";
 	static String POST_NHAN_VIEN="http://localhost:5001/nhanvien/insert";
+	static String GET_NHAN_VIEN_THEO_TEN="http://localhost:5001/nhanvien/getbyname";
+	static String GET_NHAN_VIEN_THEO_SDT="http://localhost:5001/nhanvien/getbysdt";
+	static String GET_NHAN_VIEN_THEO_CMND="http://localhost:5001/nhanvien/getbycmnd";
 	static String GET_ONE_ROLE="http://localhost:5001/role/getone";
+	TaiKhoanController taiKhoanController;
+	
 	
 	public  List<NhanVien>  GetAllNhanVien() throws IOException {
 		List<NhanVien>getall=new ArrayList<>();
@@ -207,4 +214,250 @@ public class NhanVienController {
 		}
 		return nv;
 	}
+	public boolean KiemTraTaiKhoan(TaiKhoan tk)
+	{
+		taiKhoanController=new TaiKhoanController();
+		TaiKhoan kiemtra=null;
+		try {
+			kiemtra = taiKhoanController.GetOneTaiKhoan(tk.getUsername());
+			System.out.println(kiemtra.getUsername());
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		if(kiemtra.getUsername()==null)
+			return false;
+		else
+			return true;
+	}
+	public boolean Checkcmnd(String cmnd)
+	{
+		Pattern cmndCheck = Pattern.compile("[0-9]{9}");
+		if(cmndCheck.matcher(cmnd).matches())
+			return true;
+		
+			return false;		
+	}
+	public boolean Checkemail(String email)
+	{
+		Pattern emailCheck = Pattern.compile("^(.+)@(.+)$");
+		if(emailCheck.matcher(email).matches())
+			return true;
+		
+			return false;		
+	}
+	public boolean Checksdt(String sdt)
+	{
+		Pattern sdtCheck = Pattern.compile("0[0-9]{9}");
+		if(sdtCheck.matcher(sdt).matches())
+			return true;
+		
+			return false;		
+	}
+	public List<NhanVien> searchCMND(String cmnd) {
+			ArrayList<NhanVien>list =new ArrayList<NhanVien>();
+			ArrayList<NhanVien>ketqua =new ArrayList<NhanVien>();
+			try {
+				list.addAll(GetAllNhanVien());
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			for (NhanVien nv : list) 
+			{
+				if(nv.getCmnd().toLowerCase().indexOf(cmnd.toLowerCase())!=-1)
+				{
+					ketqua.add(nv);
+				}
+				
+					
+			}
+			return ketqua;
+		}
+	public List<NhanVien> searchSDT(String sdt) {
+		ArrayList<NhanVien>list =new ArrayList<NhanVien>();
+		ArrayList<NhanVien>ketqua =new ArrayList<NhanVien>();
+		try {
+			list.addAll(GetAllNhanVien());
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		for (NhanVien nv : list) 
+		{
+			if(nv.getSoDienThoai().toLowerCase().indexOf(sdt.toLowerCase())!=-1)
+			{
+				ketqua.add(nv);
+			}
+				
+		}
+		return ketqua;
+	}
+	public List<NhanVien> searchName(String name) {
+		ArrayList<NhanVien>list =new ArrayList<NhanVien>();
+		ArrayList<NhanVien>ketqua =new ArrayList<NhanVien>();
+		try {
+			list.addAll(GetAllNhanVien());
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		for (NhanVien nv : list) 
+		{
+			if(nv.getTen().toLowerCase().indexOf(name.toLowerCase())!=-1)
+			{
+				ketqua.add(nv);
+			}
+				
+		}
+		return ketqua;
+	}
+	
+	/**
+	 * @author Vien
+	 * date: 17/4/2021
+	 * @return list danh sách nhân viên theo tên
+	 * @decription: Lấy danh sách nhân viên theo tên được gọi về từ RestFullAPI
+	 * */
+	//[START Tìm kiếm theo tên nhân viên]
+	public  List<NhanVien>  SearchName(String name) throws IOException {
+		List<NhanVien>getall=new ArrayList<>();
+	    URL urlForGetRequest = new URL(GET_NHAN_VIEN_THEO_TEN+"/"+name);
+	    String readLine = null;
+	    HttpURLConnection conection = (HttpURLConnection) urlForGetRequest.openConnection();
+	    conection.setRequestMethod("GET"); // set userId its a sample here
+	    conection.setRequestProperty("Content-Type", "application/json");
+	    int responseCode = conection.getResponseCode();
+
+	    if (responseCode == HttpURLConnection.HTTP_OK) {
+	        BufferedReader in = new BufferedReader(
+	            new InputStreamReader(conection.getInputStream()));
+	        String response = new String();
+	        while ((readLine = in .readLine()) != null) {
+	            response+=(readLine);
+	        } in .close();
+	        if(responseCode==200)
+	        {
+	        	Gson gson = new GsonBuilder()
+	        		    .setDateFormat("yyyy-MM-dd")
+	        		    .create();
+		        JsonParser parser = new JsonParser();
+		        JsonArray object = (JsonArray) parser.parse(response);// response will be the json String
+		        NhanVien[] nhanViens = gson.fromJson(object, NhanVien[].class);
+		        	
+		        for(int i=0;i<nhanViens.length;i++)
+		        	getall.add(nhanViens[i]);
+	        }
+	        else
+	        {
+	        	return null;
+	        }
+	        
+	    } else {
+	        System.out.println("GET NOT WORKED");
+	    }
+		return getall;
+
+	}
+	//[END Tìm kiếm theo tên]
+	
+	/**
+	 * @author Vien
+	 * date: 17/4/2021
+	 * @return list danh sách nhân viên theo số điện thoại
+	 * @decription: Lấy danh sách nhân viên theo số điện thoại được gọi về từ RestFullAPI
+	 * */
+	//[START Tìm kiếm theo sdt nhân viên]
+	public  List<NhanVien>  SearchSDT(String sdt) throws IOException {
+		List<NhanVien>getall=new ArrayList<>();
+	    URL urlForGetRequest = new URL(GET_NHAN_VIEN_THEO_SDT+"/"+sdt);
+	    String readLine = null;
+	    HttpURLConnection conection = (HttpURLConnection) urlForGetRequest.openConnection();
+	    conection.setRequestMethod("GET"); // set userId its a sample here
+	    conection.setRequestProperty("Content-Type", "application/json");
+	    int responseCode = conection.getResponseCode();
+
+	    if (responseCode == HttpURLConnection.HTTP_OK) {
+	        BufferedReader in = new BufferedReader(
+	            new InputStreamReader(conection.getInputStream()));
+	        String response = new String();
+	        while ((readLine = in .readLine()) != null) {
+	            response+=(readLine);
+	        } in .close();
+	        if(responseCode==200)
+	        {
+	        	Gson gson = new GsonBuilder()
+	        		    .setDateFormat("yyyy-MM-dd")
+	        		    .create();
+		        JsonParser parser = new JsonParser();
+		        JsonArray object = (JsonArray) parser.parse(response);// response will be the json String
+		        NhanVien[] nhanViens = gson.fromJson(object, NhanVien[].class);
+		        	
+		        for(int i=0;i<nhanViens.length;i++)
+		        	getall.add(nhanViens[i]);
+	        }
+	        else
+	        {
+	        	return null;
+	        }
+	        
+	    } else {
+	        System.out.println("GET NOT WORKED");
+	    }
+		return getall;
+
+	}
+	//[END Tìm kiếm theo số điện thoại]
+	
+	/**
+	 * @author Vien
+	 * date: 17/4/2021
+	 * @return list danh sách nhân viên theo chứng minh nhân dân
+	 * @decription: Lấy danh sách nhân viên theo chứng minh nhân dân được gọi về từ RestFullAPI
+	 * */
+	//[START Tìm kiếm theo chứng minh nhân dân bệnh nhân]
+	public  List<NhanVien>  SearchCMND(String cmnd) throws IOException {
+		List<NhanVien>getall=new ArrayList<>();
+	    URL urlForGetRequest = new URL(GET_NHAN_VIEN_THEO_CMND+"/"+cmnd);
+	    String readLine = null;
+	    HttpURLConnection conection = (HttpURLConnection) urlForGetRequest.openConnection();
+	    conection.setRequestMethod("GET"); // set userId its a sample here
+	    conection.setRequestProperty("Content-Type", "application/json");
+	    int responseCode = conection.getResponseCode();
+
+	    if (responseCode == HttpURLConnection.HTTP_OK) {
+	        BufferedReader in = new BufferedReader(
+	            new InputStreamReader(conection.getInputStream()));
+	        String response = new String();
+	        while ((readLine = in .readLine()) != null) {
+	            response+=(readLine);
+	        } in .close();
+	        if(responseCode==200)
+	        {
+	        	Gson gson = new GsonBuilder()
+	        		    .setDateFormat("yyyy-MM-dd")
+	        		    .create();
+		        JsonParser parser = new JsonParser();
+		        JsonArray object = (JsonArray) parser.parse(response);// response will be the json String
+		        NhanVien[] nhanViens = gson.fromJson(object, NhanVien[].class);
+		        	
+		        for(int i=0;i<nhanViens.length;i++)
+		        	getall.add(nhanViens[i]);
+	        }
+	        else
+	        {
+	        	return null;
+	        }
+	        
+	    } else {
+	        System.out.println("GET NOT WORKED");
+	    }
+		return getall;
+
+	}
+	//[END Tìm kiếm nhân viên theo chứng minh nhân dân]
+
 }

@@ -119,6 +119,8 @@ public class GUIDoiMatKhau extends JFrame implements ActionListener{
 		
 		if(o==btnhuy) {
 			dispose();
+			GUIChucNang cn= new GUIChucNang(mtaikhoan, mnhanvien);
+			cn.setVisible(true);
 			
 		}else if (o.equals(btnxacNhan)) {
 			

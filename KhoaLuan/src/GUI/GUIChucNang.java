@@ -196,6 +196,11 @@ public class GUIChucNang extends JFrame implements ActionListener{
 			 GUIThongTinNhanVien nv= new GUIThongTinNhanVien(mTaiKhoan,mNhanVien);
 			 nv.setVisible(true);
 		 }
-			
+		 if(o==btnbutton3) 
+		 {
+			 dispose();
+			 GUIPhieuKhamBenh nv= new GUIPhieuKhamBenh(mTaiKhoan,mNhanVien);
+			 nv.setVisible(true);
+		 }
 	}
 }

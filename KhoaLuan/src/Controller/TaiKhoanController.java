@@ -84,7 +84,7 @@ public class TaiKhoanController {
 
 			
 		} else {
-			System.out.println("GET NOT WORKED");
+			System.out.println(urlForGetRequest);
 		}
 
 		return taiKhoan;

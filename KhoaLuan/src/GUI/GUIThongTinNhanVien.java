@@ -85,11 +85,14 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 	private NhanVien mNhanVien;
 	private TaiKhoan mTaiKhoan;
 	private int idRole;
+	private NhanVienController control;
+	private TaiKhoanController taikhoanController;
 	/**
 	 * Create the frame.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public GUIThongTinNhanVien(TaiKhoan taikhoan,NhanVien nhanvien) {
+		control=new NhanVienController();
 		this.mTaiKhoan=taikhoan;
 		this.mNhanVien=nhanvien;
 		setTitle("Quản lí thông tin nhân viên");
@@ -160,7 +163,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 				{
 					removeTable();
 					String gioitinh="";
-					List<NhanVien> listnv= searchName();
+					List<NhanVien> listnv= control.searchName(txttim.getText().toString());
 					for(NhanVien nv:listnv)
 						if(String.valueOf(nv.getId())!=null)
 					{
@@ -170,7 +173,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 						else
 							gioitinh="Nữ";
 						
-						String[] rowdata = { String.valueOf(nv.getId()),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
+						String[] rowdata = { String.valueOf(nv.getId()),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),control.doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
 						datamodel.addRow(rowdata);
 					}	
 				}
@@ -178,7 +181,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 					{
 					removeTable();
 					String gioitinh="";
-					List<NhanVien> listnv= searchCMND();
+					List<NhanVien> listnv= control.searchCMND(txttim.getText());
 					for(NhanVien nv:listnv)
 					if(String.valueOf(nv.getId())!=null)
 					{
@@ -188,7 +191,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 						else
 							gioitinh="Nữ";
 						
-						String[] rowdata = { String.valueOf(nv.getId()),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
+						String[] rowdata = { String.valueOf(nv.getId()),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),control.doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
 						datamodel.addRow(rowdata);
 					}
 					}
@@ -196,7 +199,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 					{
 					removeTable();
 					String gioitinh="";
-					List<NhanVien> listnv= searchSDT();
+					List<NhanVien> listnv= control.searchSDT(txttim.getText());
 					for(NhanVien nv:listnv)
 					if(String.valueOf(nv.getId()).toString()!=null)
 					{
@@ -206,7 +209,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 						else
 							gioitinh="Nữ";
 						
-						String[] rowdata = { String.valueOf(nv.getId()),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
+						String[] rowdata = { String.valueOf(nv.getId()),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),control.doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
 						datamodel.addRow(rowdata);
 					}
 					}
@@ -420,6 +423,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 		contentPane.add(panel);
 		panel.setLayout(null);
 		table.addMouseListener(this);
+		
 		btnsua.addActionListener(this);
 		btnluu.addActionListener(this);
 		btnthem.addActionListener(this);
@@ -476,7 +480,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 		else if (o.equals(btnluu))
 			
 		{
-			if(Check())
+			if(CheckThongTin())
 			{
 				int responseCode=0;	
 				NhanVien nv=new NhanVien();
@@ -484,11 +488,11 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 				TaiKhoan tk=new TaiKhoan();
 				tk.setUsername(txtTaiThoan.getText());
 				tk.setPassword("123456");
-				TaiKhoanController taikhoanController=new TaiKhoanController();
+				taikhoanController=new TaiKhoanController();
 				
 				tk.setRole(list.get((comboBox.getSelectedIndex())));
 					
-				if(kiemtra(tk))
+				if(!(control.KiemTraTaiKhoan(tk)))
 				{
 					try {
 						responseCode=taikhoanController.POSTRequest(tk);
@@ -562,7 +566,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 			}
 			else
 			{
-					if(Check()) {
+					if(CheckThongTin()) {
 						int code=0;
 						
 					
@@ -665,8 +669,6 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 	
 	public void updateTableData() 
 	{
-		NhanVienController control=new NhanVienController();
-		// TODO Auto-generated method stub
 		ArrayList<NhanVien>list=new ArrayList<>();
 		try {
 			list.addAll(control.GetAllNhanVien());
@@ -682,7 +684,7 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 			}
 			else
 				gioitinh="Nữ";
-			String[] rowdata = {String.valueOf(nv.getId()).toString(),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
+			String[] rowdata = {String.valueOf(nv.getId()).toString(),nv.getTen(),gioitinh,nv.getSoDienThoai(),nv.getCmnd(),nv.getDiaChi(),control.doichuoitungay(nv.getNgaySinh()),nv.getEmail()};
 			datamodel.addRow(rowdata);
 		}
 	}
@@ -690,73 +692,10 @@ public class GUIThongTinNhanVien extends JFrame implements MouseListener,ActionL
 		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 		tableModel.setRowCount(0);
 	}
-	public List<NhanVien> searchName() {
-		NhanVienController nhanVienController=new NhanVienController();
-		ArrayList<NhanVien>list =new ArrayList<NhanVien>();
-		ArrayList<NhanVien>ketqua =new ArrayList<NhanVien>();
-		try {
-			list.addAll(nhanVienController.GetAllNhanVien());
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+
+	private void SetEnableEditText(boolean trangthai) {
 		
-		for (NhanVien nv : list) 
-		{
-			if(nv.getTen().toLowerCase().indexOf(txttim.getText().toLowerCase())!=-1)
-			{
-				ketqua.add(nv);
-			}
-				
-		}
-		return ketqua;
-	}
-public List<NhanVien> searchCMND() {
-	NhanVienController nhanVienController=new NhanVienController();
-		ArrayList<NhanVien>list =new ArrayList<NhanVien>();
-		ArrayList<NhanVien>ketqua =new ArrayList<NhanVien>();
-		try {
-			list.addAll(nhanVienController.GetAllNhanVien());
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
-		for (NhanVien nv : list) 
-		{
-			if(nv.getCmnd().toLowerCase().indexOf(txttim.getText().toLowerCase())!=-1)
-			{
-				ketqua.add(nv);
-			}
-			
-				
-		}
-		return ketqua;
-	}
-public List<NhanVien> searchSDT() {
-	NhanVienController nhanVienController=new NhanVienController();
-	ArrayList<NhanVien>list =new ArrayList<NhanVien>();
-	ArrayList<NhanVien>ketqua =new ArrayList<NhanVien>();
-	try {
-		list.addAll(nhanVienController.GetAllNhanVien());
-	} catch (IOException e2) {
-		// TODO Auto-generated catch block
-		e2.printStackTrace();
-	}
-	
-	for (NhanVien nv : list) 
-	{
-		if(nv.getSoDienThoai().toLowerCase().indexOf(txttim.getText().toLowerCase())!=-1)
-		{
-			ketqua.add(nv);
-		}
-			
-	}
-	return ketqua;
-}
-	private void SetEnableEditText(boolean a) {
-		
-		if(!a)
+		if(!trangthai)
 		{
 			
 			
@@ -811,7 +750,7 @@ public List<NhanVien> searchSDT() {
 		txtTaiThoan.setText("");
 	}
 	
-	public boolean Check() {
+	public boolean CheckThongTin() {
 		if(txthoTen.getText().equals("")) 
 			{
 				JOptionPane.showConfirmDialog(this, "Họ tên bạn nhập vào đã trống. Mời nhập lại !","Chú ý",JOptionPane.CLOSED_OPTION);
@@ -858,7 +797,6 @@ public List<NhanVien> searchSDT() {
 		}
 		
 		
-	// kiem tra so dien thoai
 			try 
 			{	
 				if(Long.parseLong(txtsDT.getText())<0){
@@ -866,7 +804,7 @@ public List<NhanVien> searchSDT() {
 					txtsDT.requestFocus();
 					txtsDT.selectAll();
 					return false;}
-				if(!checksdt()) {
+				if(!control.Checksdt(txtsDT.getText())) {
 					JOptionPane.showConfirmDialog(this, "Số điện thoại bạn vừa nhập có ký tự không phải là số hoặc không phải 10 chữ số ! ","Chú ý",JOptionPane.CLOSED_OPTION);
 					txtsDT.requestFocus();
 					txtsDT.selectAll();
@@ -887,7 +825,7 @@ public List<NhanVien> searchSDT() {
 					txtcmnd.requestFocus();
 					txtcmnd.selectAll();
 					return false;}
-				if(!checkcmnd()) {
+				if(!control.Checkcmnd(txtcmnd.getText())) {
 					JOptionPane.showConfirmDialog(this, "Số Chứng minh nhập vào có ký tự không phải là số hoặc không phải 9 chữ số. Vui lòng nhập lại số chứng minh ! ","Chú ý",JOptionPane.CLOSED_OPTION);
 					txtcmnd.requestFocus();
 					txtcmnd.selectAll();
@@ -903,7 +841,7 @@ public List<NhanVien> searchSDT() {
 				}
 			try 
 			{	
-				if(!checkemail()) {
+				if(!control.Checkemail(txtemail.getText())) {
 					JOptionPane.showConfirmDialog(this, "Bạn vừa nhập email không hợp lệ. Email có dạng : anystring@anystring.anystring ! ","Chú ý",JOptionPane.CLOSED_OPTION);
 					txtcmnd.requestFocus();
 					txtcmnd.selectAll();
@@ -921,33 +859,7 @@ public List<NhanVien> searchSDT() {
 		
 	}
 	
-	boolean checksdt()
-	{
-		String sdt = txtsDT.getText();
-		Pattern sdtCheck = Pattern.compile("0[0-9]{9}");
-		if(sdtCheck.matcher(sdt).matches())
-			return true;
-		
-			return false;		
-	}
-	boolean checkcmnd()
-	{
-		String cmnd = txtcmnd.getText();
-		Pattern cmndCheck = Pattern.compile("[0-9]{9}");
-		if(cmndCheck.matcher(cmnd).matches())
-			return true;
-		
-			return false;		
-	}
-	boolean checkemail()
-	{
-		String email = txtemail.getText();
-		Pattern emailCheck = Pattern.compile("^(.+)@(.+)$");
-		if(emailCheck.matcher(email).matches())
-			return true;
-		
-			return false;		
-	}
+	
 	public void AddNhanVien(NhanVien nv) {
 				
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -959,39 +871,11 @@ public List<NhanVien> searchSDT() {
 		nv.setTen(txthoTen.getText());
 		nv.setDiaChi(txtdiaChi.getText());
 		nv.setGioiTinh(gioitinh);
-		nv.setNgaySinh(doingaytuchuoi(strDate));
+		nv.setNgaySinh(control.doingaytuchuoi(strDate));
 		nv.setSoDienThoai(txtsDT.getText());
 		nv.setEmail(txtemail.getText());
 		nv.setCmnd(txtcmnd.getText());
 	}
-	public Date doingaytuchuoi(String s) {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		Date date=new Date();
-        try {
-             date = formatter.parse(s);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return date;
-	}
-	public String doichuoitungay(Date date) {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		String dateFormat = formatter.format(date);
-		return dateFormat;
-	}
-	public boolean kiemtra(TaiKhoan tk)
-	{
-		TaiKhoanController taiKhoanController=new TaiKhoanController();
-		TaiKhoan kiemtra=null;
-		try {
-			kiemtra = taiKhoanController.GetOneTaiKhoan(tk.getUsername());
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		if(kiemtra==null)
-			return false;
-		else
-			return true;
-	}
+	
+	
 }

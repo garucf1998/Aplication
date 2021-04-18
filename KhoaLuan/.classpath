@@ -22,5 +22,10 @@
 	<classpathentry kind="lib" path="C:/Users/Vien/eclipse-workspace/KhoaLuan/lib/stax2-api-4.2.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Vien/eclipse-workspace/KhoaLuan/lib/stax-ex-2.0.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Vien/eclipse-workspace/KhoaLuan/lib/validation-api-2.0.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-fileupload-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/mail-1.4.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Vien/Desktop/entity.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
